@@ -1,0 +1,101 @@
+For a Python developer, interview questions about connecting to an EC2 instance using the shell often focus on understanding SSH, cloud resource management, networking, and practical troubleshooting. Here are some potential questions and answers that might be asked:
+
+Basic Questions
+1. How do you connect to an EC2 instance using SSH?
+
+Answer: To connect to an EC2 instance using SSH, use the following command:
+ssh -i /path/to/your-key.pem ec2-user@<instance-public-ip>
+Here, your-key.pem is the private key file used to authenticate, 
+ec2-user is the default username for Amazon Linux (or ubuntu for Ubuntu AMIs), 
+and <instance-public-ip> is the public IP address of the instance.
+
+
+2. What is the purpose of the .pem file in SSH connections?
+Answer: The .pem file is a private key that provides secure, key-based authentication to the EC2 
+instance. It matches the public key stored on the instance and ensures that only users with the 
+correct private key can access it.
+
+
+3.What permissions should the .pem file have to connect via SSH, and how do you set them?
+Answer: The .pem file should have read-only permissions (400) for the user. You can set them using:
+chmod 400 /path/to/your-key.pem
+
+
+
+Intermediate Questions
+1. How would you troubleshoot if you're unable to connect to an EC2 instance via SSH?
+Answer: First, verify that the instance is running and has a public IP. Next, check the security group 
+attached to the instance to ensure that inbound rules allow SSH (port 22) from your IP address. 
+Also, ensure that the .pem file permissions are correct, and that you’re using the correct username 
+and IP address.
+
+
+2. What changes might you need to make in the security group to allow SSH access to your EC2 instance?
+Answer: In the security group settings, add an inbound rule that allows SSH (port 22) from the IP address 
+you’re connecting from. For example, to allow access from any IP (not recommended for production), you 
+would allow 0.0.0.0/0.
+
+
+3. How would you connect to an EC2 instance in a private subnet?
+Answer: To connect to an instance in a private subnet, you typically set up a bastion host 
+(an EC2 instance in a public subnet) or use AWS Systems Manager Session Manager. SSH into the bastion 
+host, then use it to SSH into the private instance.
+
+
+4. What is an Elastic IP, and why might it be useful when connecting to EC2 instances?
+Answer: An Elastic IP is a static, public IPv4 address that you can allocate and associate with an 
+EC2 instance. It allows the instance to retain the same IP address across stops, starts, or reboots, 
+which is helpful for consistent SSH access.
+
+
+
+Advanced Questions
+1. How can you automate SSH connections to multiple EC2 instances for maintenance tasks using Python?
+Answer: You can use the paramiko library in Python to automate SSH connections, or leverage AWS Systems 
+Manager Session Manager, which integrates with the AWS SDK for Python (Boto3) to execute commands across 
+multiple EC2 instances without direct SSH access.
+
+
+2. How would you set up SSH access without a password using EC2 instance metadata in a Python script?
+Answer: Using boto3, you can retrieve EC2 instance metadata (such as the public IP or instance ID) and 
+configure SSH keys programmatically. You could use the ec2.Instance resource to retrieve and manage SSH 
+connections dynamically based on instance details.
+
+
+3. How can you securely transfer files to an EC2 instance using the command line?
+Answer: Use scp (secure copy) to transfer files over SSH. For example:
+scp -i /path/to/your-key.pem local-file.txt ec2-user@<instance-public-ip>:/path/on/ec2
+
+
+4. Explain the difference between EC2 user data and SSH connections for automation.
+Answer: EC2 user data is a script that runs at instance launch, useful for setting up the environment 
+without manual SSH. SSH connections, on the other hand, provide interactive access to manage, monitor, 
+or debug the instance manually.
+
+
+5. How can IAM roles be used to manage SSH access to an EC2 instance for different users?
+Answer: While IAM roles do not directly control SSH access, they can be used to manage access through 
+AWS Systems Manager Session Manager, allowing role-based access to the instance without SSH keys. 
+This approach is safer as it doesn’t require sharing private keys.
+
+
+
+Scenario-Based Questions
+1. If you are using a Python script to monitor an EC2 instance’s health and detect if it’s unreachable 
+    via SSH, what AWS service would you integrate, and how?
+Answer: Integrate Amazon CloudWatch for monitoring the instance’s health status and metrics like 
+StatusCheckFailed. Using boto3, a Python script could retrieve these metrics and alert if the instance 
+becomes unreachable.
+
+
+2. You need to connect to multiple EC2 instances with different .pem files. How would you manage this 
+    efficiently?
+Answer: You could create an SSH configuration file (~/.ssh/config) with entries for each instance. 
+Specify the user, IP, and identity file (private key) for each host, enabling easier access with a 
+single command (ssh instance-name).
+
+
+3. What alternatives to SSH does AWS offer for connecting to an EC2 instance, and why might these be preferred?
+Answer: AWS Systems Manager Session Manager is a secure alternative to SSH, providing shell access without the 
+need for open ports or SSH keys. It’s preferred for its security (no public IP needed) and integration 
+with IAM for access control.
